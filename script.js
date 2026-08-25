@@ -21,4 +21,5 @@ const nav = document.querySelector("header nav");
 
 menuButton.addEventListener("click", function() { 
     nav.classList.toggle("active"); 
+    menuButton.classList.toggle("active")
 });
