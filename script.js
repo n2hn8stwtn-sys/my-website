@@ -71,10 +71,10 @@ window.add("load", function() {
     preloader.classList.add("hide");
 });
 
-window.addEventListener("load", function() {
+window.addEventListener("load", () => {
     const preloader = document.getElementById("preloader");
 
-    setTimeout(function() {
+    setTimeout(() => {
         preloader.classList.add("hide");
     }, 500);
 })
