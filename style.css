@@ -553,4 +553,25 @@ nav a:hover {
                 width: 100px;
             }
         }
+
+        .socials a {
+            width: 50px;
+            height: 50px;
+            padding: 0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid currentColor;
+            transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+
+        }
+
+        .socials a:hover {
+            background-color: #b7d9b9;
+            transform: translateY(-5px) scale(1.08);
+        }
     
