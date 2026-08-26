@@ -623,4 +623,42 @@ nav a:hover {
         .profile-photo {
             opacity: photoAppear 1s ease 0.6s forwards;
         }
+
+        .about-container {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .about-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card:hower {
+            transform: translateY(-8px);
+        }
+
+        .card:nth-child(1) {
+            transition-delay: 0s;
+        }
+
+        .card:nth-child(2) {
+            transition-delay: 0.15s;
+        }
+
+        .card:nth-child(3) {
+            transition-delay: 0.3s;
+        }
     

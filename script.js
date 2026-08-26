@@ -23,3 +23,35 @@ menuButton.addEventListener("click", function() {
     nav.classList.toggle("active"); 
     menuButton.classList.toggle("active")
 });
+
+const aboutSection = document.querySelector(".about-container")
+
+const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+        }
+    });
+}, {
+    threshold: 0.2
+});
+
+if (aboutSection) {
+    observer.observe(aboutSection);
+}
+
+const cards = document.querySelectorAll(".card");
+
+const cardObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+        }
+    });
+}, {
+    threshold: 0.2
+});
+
+cards.forEach(function(card) {
+    cardObserver.observe(card);
+});
