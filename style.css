@@ -576,4 +576,30 @@ nav a:hover {
             background-color: #b7d9b9;
             transform: translateY(-5px) scale(1.08);
         }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            animation: fadeUp 0.8s ease forwards;
+        }
+
+        .hero .description {
+            animation: fadeUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-button {
+            animation: fadeUp 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
     
