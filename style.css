@@ -726,4 +726,18 @@ nav a:hover {
              opacity: 0;
              visibility: hidden;
         }
+
+        body {
+            animation: pageAppear 0.8s ease;
+        }
+
+        @keyframes pageAppear {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
     
