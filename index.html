@@ -95,6 +95,44 @@
             </div> 
         </section> 
         <section id="contacts"> 
+        <section id="calendar">
+    <div class="calendar-container">
+        <p class="about-label">ТВОЙ МУЗЫКАЛЬНЫЙ МИР</p>
+        <h2>Музыкальный календарь</h2>
+        <p class="description">
+            Следи за музыкальными событиями и планируй,
+            что послушать сегодня.
+        </p>
+
+        <div class="calendar-header">
+            <button id="prevMonth" aria-label="Предыдущий месяц">←</button>
+            <h3 id="currentMonth"></h3>
+            <button id="nextMonth" aria-label="Следующий месяц">→</button>
+        </div>
+
+        <div class="calendar-weekdays">
+            <span>Пн</span>
+            <span>Вт</span>
+            <span>Ср</span>
+            <span>Чт</span>
+            <span>Пт</span>
+            <span>Сб</span>
+            <span>Вс</span>
+        </div>
+
+        <div class="calendar-days" id="calendarDays"></div>
+
+        <div class="calendar-event">
+            <h3>Твои музыкальные планы</h3>
+            <p id="selectedDate">Выбери дату в календаре</p>
+            <input type="text" id="eventInput"
+                   placeholder="Например: послушать новый альбом">
+            <button id="addEvent">Добавить событие</button>
+            <div id="eventList"></div>
+        </div>
+    </div>
+</section>
+
             <h2>Контакты</h2> 
             <p>Связаться со мной и посмотреть мои проекты.</p> 
         </section> 
