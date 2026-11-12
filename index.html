@@ -91,6 +91,64 @@
                         <p> Здесь будут отображаться треки, которые можно искать и воспроизводить. </p> 
                     </article> 
                 </div> 
+
+                    <!-- MUSIC PLAYER -->
+
+                <div class="player-container">
+
+                        <p class="about-label">ТВОЯ МУЗЫКА</p>
+                        <h2>Music Player</h2>
+
+    <div class="player-cover">
+        <div class="cover-icon">♫</div>
+    </div>
+
+    <h3 id="playerTitle">Выбери свою музыку</h3>
+    <p id="playerArtist">Твоя музыкальная библиотека</p>
+
+    <audio id="audioPlayer"></audio>
+
+    <div class="player-progress">
+        <span id="currentTime">0:00</span>
+        <input type="range" id="progressBar"
+               min="0" max="100" value="0">
+        <span id="duration">0:00</span>
+    </div>
+
+<div class="volume-control">
+    <span>🔈</span>
+    <input
+        type="range"
+        id="volumeBar"
+        min="0"
+        max="100"
+        value="70"
+        aria-label="Громкость"
+    >
+    <span>🔊</span>
+    <span id="volumeValue">70%</span>
+</div>
+
+    <div class="player-controls">
+        <button id="prevTrack" aria-label="Предыдущий трек">⏮</button>
+        <button id="playPause" class="play-button"
+                aria-label="Воспроизвести">▶</button>
+        <button id="nextTrack" aria-label="Следующий трек">⏭</button>
+    </div>
+
+    <div class="player-upload">
+        <label for="audioUpload">＋ Добавить свою музыку</label>
+        <input type="file" id="audioUpload"
+               accept="audio/*" multiple>
+    </div>
+
+    <div class="playlist">
+        <h3>Мой плейлист</h3>
+        <div id="playlist"></div>
+    </div>
+
+</div>
+
                 <p id="musicMessage" aria-live="polite"> Музыкальный каталог пока готовится. </p> 
             </div> 
         </section> 

@@ -410,3 +410,191 @@ if (calendarDays && currentMonth) {
     renderEvents();
 }
 
+
+// ===== MUSICSPACE AUDIO PLAYER =====
+
+const audioPlayer = document.getElementById("audioPlayer");
+const audioUpload = document.getElementById("audioUpload");
+const playPause = document.getElementById("playPause");
+const prevTrack = document.getElementById("prevTrack");
+const nextTrack = document.getElementById("nextTrack");
+const progressBar = document.getElementById("progressBar");
+const playerTitle = document.getElementById("playerTitle");
+const playerArtist = document.getElementById("playerArtist");
+const currentTime = document.getElementById("currentTime");
+const duration = document.getElementById("duration");
+const playlist = document.getElementById("playlist");
+
+if (
+    audioPlayer && audioUpload && playPause &&
+    prevTrack && nextTrack && progressBar && playlist
+) {
+    let tracks = [];
+    let currentTrackIndex = 0;
+
+    function formatTime(seconds) {
+        if (!Number.isFinite(seconds)) return "0:00";
+
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = Math.floor(seconds % 60);
+
+        return minutes + ":" +
+            String(remainingSeconds).padStart(2, "0");
+    }
+
+    function loadTrack(index) {
+        if (!tracks.length) return;
+
+        currentTrackIndex = index;
+        const track = tracks[index];
+
+        audioPlayer.src = track.url;
+        playerTitle.textContent = track.name;
+        playerArtist.textContent = "Моя библиотека";
+
+        progressBar.value = 0;
+        currentTime.textContent = "0:00";
+        duration.textContent = "0:00";
+
+        renderPlaylist();
+    }
+
+    function renderPlaylist() {
+        playlist.innerHTML = "";
+
+        tracks.forEach(function(track, index) {
+            const item = document.createElement("div");
+            item.className = "playlist-item";
+
+            const name = document.createElement("span");
+            name.textContent = "🎵 " + track.name;
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = "▶";
+            button.setAttribute("aria-label", "Воспроизвести " + track.name);
+
+            button.addEventListener("click", function() {
+                loadTrack(index);
+                playTrack();
+            });
+
+            item.append(name, button);
+            playlist.appendChild(item);
+        });
+    }
+
+    function playTrack() {
+        if (!tracks.length) return;
+
+        audioPlayer.play().then(function() {
+            playPause.textContent = "⏸";
+        }).catch(function() {
+            playPause.textContent = "▶";
+            alert("Не удалось воспроизвести этот файл.");
+        });
+    }
+
+    function pauseTrack() {
+        audioPlayer.pause();
+        playPause.textContent = "▶";
+    }
+
+    playPause.addEventListener("click", function() {
+        if (!tracks.length) {
+            alert("Сначала добавь музыкальный файл!");
+            return;
+        }
+
+        if (audioPlayer.paused) {
+            playTrack();
+        } else {
+            pauseTrack();
+        }
+    });
+
+    audioUpload.addEventListener("change", function() {
+        const files = Array.from(audioUpload.files || []);
+
+        files.forEach(function(file) {
+            if (!file.type.startsWith("audio/")) return;
+
+            tracks.push({
+                name: file.name.replace(/\.[^/.]+$/, ""),
+                url: URL.createObjectURL(file)
+            });
+        });
+
+        renderPlaylist();
+
+        if (tracks.length && !audioPlayer.src) {
+            loadTrack(0);
+        }
+
+        audioUpload.value = "";
+    });
+
+    nextTrack.addEventListener("click", function() {
+        if (!tracks.length) return;
+
+        const nextIndex = (currentTrackIndex + 1) % tracks.length;
+        loadTrack(nextIndex);
+        playTrack();
+    });
+
+    prevTrack.addEventListener("click", function() {
+        if (!tracks.length) return;
+
+        const previousIndex =
+            (currentTrackIndex - 1 + tracks.length) % tracks.length;
+
+        loadTrack(previousIndex);
+        playTrack();
+    });
+
+    audioPlayer.addEventListener("loadedmetadata", function() {
+        duration.textContent = formatTime(audioPlayer.duration);
+    });
+
+    audioPlayer.addEventListener("timeupdate", function() {
+        if (!Number.isFinite(audioPlayer.duration)) return;
+
+        progressBar.value =
+            (audioPlayer.currentTime / audioPlayer.duration) * 100;
+
+        currentTime.textContent = formatTime(audioPlayer.currentTime);
+    });
+
+    progressBar.addEventListener("input", function() {
+        if (!Number.isFinite(audioPlayer.duration)) return;
+
+        audioPlayer.currentTime =
+            (progressBar.value / 100) * audioPlayer.duration;
+    });
+
+    audioPlayer.addEventListener("ended", function() {
+        if (!tracks.length) return;
+
+        const nextIndex = (currentTrackIndex + 1) % tracks.length;
+        loadTrack(nextIndex);
+        playTrack();
+    });
+}
+
+
+
+// ===== УПРАВЛЕНИЕ ГРОМКОСТЬЮ =====
+
+const volumeBar = document.getElementById("volumeBar");
+const volumeValue = document.getElementById("volumeValue");
+
+if (volumeBar && volumeValue && audioPlayer) {
+    audioPlayer.volume = 0.7;
+
+    volumeBar.addEventListener("input", function() {
+        const volume = Number(volumeBar.value);
+
+        audioPlayer.volume = volume / 100;
+        volumeValue.textContent = volume + "%";
+    });
+}
