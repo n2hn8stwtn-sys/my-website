@@ -485,15 +485,21 @@ if (
     }
 
     function playTrack() {
-        if (!tracks.length) return;
-
-        audioPlayer.play().then(function() {
-            playPause.textContent = "⏸";
-        }).catch(function() {
-            playPause.textContent = "▶";
-            alert("Не удалось воспроизвести этот файл.");
-        });
+    if (!tracks.length) {
+        alert("Сначала добавь музыкальный файл!");
+        return;
     }
+
+    audioPlayer.play()
+        .then(function() {
+            playPause.textContent = "⏸";
+            console.log("Музыка запущена");
+        })
+        .catch(function(error) {
+            console.error("Ошибка воспроизведения:", error);
+            alert("Ошибка: " + error.message);
+        });
+}
 
     function pauseTrack() {
         audioPlayer.pause();
@@ -515,6 +521,8 @@ if (
 
     audioUpload.addEventListener("change", function() {
         const files = Array.from(audioUpload.files || []);
+
+        console.log("Файл выбран:", files);
 
         files.forEach(function(file) {
             if (!file.type.startsWith("audio/")) return;
