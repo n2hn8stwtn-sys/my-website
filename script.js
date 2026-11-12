@@ -223,3 +223,190 @@ window.addEventListener("load", function() {
         preloader.classList.add("hide");
     }
 });
+
+
+
+// ===== MUSICSPACE: МУЗЫКАЛЬНЫЙ КАЛЕНДАРЬ =====
+
+const calendarDays = document.getElementById("calendarDays");
+const currentMonth = document.getElementById("currentMonth");
+const prevMonth = document.getElementById("prevMonth");
+const nextMonth = document.getElementById("nextMonth");
+const selectedDateText = document.getElementById("selectedDate");
+const eventInput = document.getElementById("eventInput");
+const addEventButton = document.getElementById("addEvent");
+const eventList = document.getElementById("eventList");
+
+if (calendarDays && currentMonth) {
+
+    let displayedDate = new Date();
+    let selectedDate = new Date();
+
+    let events = JSON.parse(
+        localStorage.getItem("musicEvents") || "{}"
+    );
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function renderCalendar() {
+        calendarDays.innerHTML = "";
+
+        currentMonth.textContent = displayedDate.toLocaleDateString(
+            "ru-RU",
+            {
+                month: "long",
+                year: "numeric"
+            }
+        );
+
+        const year = displayedDate.getFullYear();
+        const month = displayedDate.getMonth();
+
+        const firstDay = new Date(year, month, 1);
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        let startDay = firstDay.getDay();
+        startDay = startDay === 0 ? 6 : startDay - 1;
+
+        for (let i = 0; i < startDay; i++) {
+            const empty = document.createElement("div");
+            empty.className = "calendar-day empty";
+            calendarDays.appendChild(empty);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            const dateKey = formatDate(date);
+
+            const button = document.createElement("button");
+            button.className = "calendar-day";
+            button.textContent = day;
+            button.type = "button";
+
+            if (dateKey === formatDate(new Date())) {
+                button.classList.add("today");
+            }
+
+            if (dateKey === formatDate(selectedDate)) {
+                button.classList.add("selected");
+            }
+
+            if (events[dateKey]?.length) {
+                button.textContent = day + " ♪";
+            }
+
+            button.addEventListener("click", function() {
+                selectedDate = date;
+                renderCalendar();
+                renderEvents();
+            });
+
+            calendarDays.appendChild(button);
+        }
+    }
+
+    function renderEvents() {
+        const dateKey = formatDate(selectedDate);
+
+        selectedDateText.textContent = selectedDate.toLocaleDateString(
+            "ru-RU",
+            {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
+
+        eventList.innerHTML = "";
+
+        const dayEvents = events[dateKey] || [];
+
+        if (dayEvents.length === 0) {
+            eventList.textContent = "На эту дату пока нет событий.";
+            return;
+        }
+
+        dayEvents.forEach(function(event, index) {
+            const item = document.createElement("div");
+            item.className = "event-item";
+
+            const text = document.createElement("span");
+            text.textContent = "🎵 " + event;
+
+            const removeButton = document.createElement("button");
+            removeButton.type = "button";
+            removeButton.textContent = "Удалить";
+            removeButton.style.marginLeft = "12px";
+            removeButton.style.cursor = "pointer";
+
+            removeButton.addEventListener("click", function() {
+                events[dateKey].splice(index, 1);
+
+                if (events[dateKey].length === 0) {
+                    delete events[dateKey];
+                }
+
+                saveEvents();
+                renderCalendar();
+                renderEvents();
+            });
+
+            item.append(text, removeButton);
+            eventList.appendChild(item);
+        });
+    }
+
+    function saveEvents() {
+        localStorage.setItem("musicEvents", JSON.stringify(events));
+    }
+
+    if (prevMonth) {
+        prevMonth.addEventListener("click", function() {
+            displayedDate.setMonth(displayedDate.getMonth() - 1);
+            renderCalendar();
+        });
+    }
+
+    if (nextMonth) {
+        nextMonth.addEventListener("click", function() {
+            displayedDate.setMonth(displayedDate.getMonth() + 1);
+            renderCalendar();
+        });
+    }
+
+    if (addEventButton && eventInput) {
+        addEventButton.addEventListener("click", function() {
+            const eventName = eventInput.value.trim();
+
+            if (!eventName) {
+                alert("Сначала введи название события!");
+                return;
+            }
+
+            const dateKey = formatDate(selectedDate);
+
+            if (!events[dateKey]) {
+                events[dateKey] = [];
+            }
+
+            events[dateKey].push(eventName);
+
+            saveEvents();
+
+            eventInput.value = "";
+
+            renderCalendar();
+            renderEvents();
+        });
+    }
+
+    renderCalendar();
+    renderEvents();
+}
+
