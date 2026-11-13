@@ -463,6 +463,12 @@ if (
 function renderPlaylist() {
     playlist.innerHTML = "";
 
+    const favoritesList = document.getElementById("favoritesList");
+
+    if (favoritesList) {
+    favoritesList.innerHTML = "";
+    }
+
     tracks.forEach(function(track, index) {
         const item = document.createElement("div");
         item.className = "playlist-item";
@@ -475,9 +481,30 @@ function renderPlaylist() {
         favoriteButton.className = "favorite-button";
 
         favoriteButton.addEventListener("click", function() {
-            track.favorite = !track.favorite;
-            renderPlaylist();
+        track.favorite = !track.favorite;
+        renderPlaylist();
+
+        if (track.favorite && favoritesList) {
+    const favoriteItem = document.createElement("div");
+    favoriteItem.className = "playlist-item";
+
+    const favoriteName = document.createElement("span");
+    favoriteName.textContent = "❤️ " + track.name;
+
+    const favoritePlay = document.createElement("button");
+    favoritePlay.textContent = "▶";
+    favoritePlay.type = "button";
+
+    favoritePlay.addEventListener("click", function() {
+        loadTrack(index);
+        playTrack();
+    });
+
+    favoriteItem.append(favoriteName, favoritePlay);
+    favoritesList.appendChild(favoriteItem);
+}
         });
+
 
         const button = document.createElement("button");
         button.type = "button";
