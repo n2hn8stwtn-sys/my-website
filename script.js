@@ -432,6 +432,95 @@ if (
     let tracks = [];
     let currentTrackIndex = 0;
 
+
+
+    function openMusicDatabase() {
+    return new Promise(function(resolve, reject) {
+        const request = indexedDB.open("MusicSpaceDB", 1);
+
+        request.onupgradeneeded = function() {
+            const database = request.result;
+
+            if (!database.objectStoreNames.contains("tracks")) {
+                database.createObjectStore("tracks", {
+                    keyPath: "id",
+                    autoIncrement: true
+                });
+            }
+        };
+
+        request.onsuccess = function() {
+            resolve(request.result);
+        };
+
+        request.onerror = function() {
+            reject(request.error);
+        };
+    });
+  }
+
+    async function saveTrackToDatabase(file, name) {
+    const database = await openMusicDatabase();
+
+    return new Promise(function(resolve, reject) {
+        const transaction = database.transaction("tracks", "readwrite");
+        const store = transaction.objectStore("tracks");
+
+        const request = store.add({
+            name: name,
+            file: file,
+            favorite: false
+        });
+
+        request.onsuccess = function() {
+            resolve(request.result);
+        };
+
+        request.onerror = function() {
+            reject(request.error);
+        };
+    });
+    }
+
+    async function getSavedTracks() {
+    const database = await openMusicDatabase();
+
+    return new Promise(function(resolve, reject) {
+        const transaction = database.transaction("tracks", "readonly");
+        const request = transaction.objectStore("tracks").getAll();
+
+        request.onsuccess = function() {
+            resolve(request.result);
+        };
+
+        request.onerror = function() {
+            reject(request.error);
+        };
+    });
+    }
+
+    async function updateFavoriteInDatabase(track) {
+    const database = await openMusicDatabase();
+
+    return new Promise(function(resolve, reject) {
+        const transaction = database.transaction("tracks", "readwrite");
+        const store = transaction.objectStore("tracks");
+
+        store.put({
+            id: track.id,
+            name: track.name,
+            file: track.file,
+            favorite: track.favorite
+        });
+
+        transaction.oncomplete = resolve;
+        transaction.onerror = function() {
+            reject(transaction.error);
+        };
+    });
+    }
+
+
     function formatTime(seconds) {
         if (!Number.isFinite(seconds)) return "0:00";
 
