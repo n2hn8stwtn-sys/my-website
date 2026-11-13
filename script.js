@@ -529,9 +529,9 @@ if (
 
         return minutes + ":" +
             String(remainingSeconds).padStart(2, "0");
-    }
+        }
 
-    function loadTrack(index) {
+        function loadTrack(index) {
         if (!tracks.length) return;
 
         currentTrackIndex = index;
@@ -546,19 +546,19 @@ if (
         duration.textContent = "0:00";
 
         renderPlaylist();
-    }
+        }
 
     
-function renderPlaylist() {
-    playlist.innerHTML = "";
+        function renderPlaylist() {
+        playlist.innerHTML = "";
 
-    const favoritesList = document.getElementById("favoritesList");
+        const favoritesList = document.getElementById("favoritesList");
 
-    if (favoritesList) {
-    favoritesList.innerHTML = "";
-    }
+        if (favoritesList) {
+        favoritesList.innerHTML = "";
+        }
 
-    tracks.forEach(function(track, index) {
+        tracks.forEach(function(track, index) {
         const item = document.createElement("div");
         item.className = "playlist-item";
 
@@ -569,10 +569,16 @@ function renderPlaylist() {
         favoriteButton.textContent = track.favorite ? "❤️" : "♡";
         favoriteButton.className = "favorite-button";
 
-        favoriteButton.addEventListener("click", function() {
-        track.favorite = !track.favorite;
-        renderPlaylist();
+       favoriteButton.addEventListener("click", async function() {
+       track.favorite = !track.favorite;
 
+        try {
+        await updateFavoriteInDatabase(track);
+        renderPlaylist();
+        } catch (error) {
+            console.error("Ошибка сохранения избранного:", error);
+        }
+    });
         if (track.favorite && favoritesList) {
     const favoriteItem = document.createElement("div");
     favoriteItem.className = "playlist-item";
@@ -591,7 +597,7 @@ function renderPlaylist() {
 
     favoriteItem.append(favoriteName, favoritePlay);
     favoritesList.appendChild(favoriteItem);
-}
+            }
         });
 
 
@@ -606,7 +612,7 @@ function renderPlaylist() {
 
         item.append(name, favoriteButton, button);
         playlist.appendChild(item);
-    });
+        };
 }
 
 
@@ -645,28 +651,70 @@ function renderPlaylist() {
         }
     });
 
-    audioUpload.addEventListener("change", function() {
-        const files = Array.from(audioUpload.files || []);
+    
+audioUpload.addEventListener("change", async function() {
+    const files = Array.from(audioUpload.files || []);
 
-        console.log("Файл выбран:", files);
+    for (const file of files) {
+        if (!file.type.startsWith("audio/")) continue;
 
-        files.forEach(function(file) {
-            if (!file.type.startsWith("audio/")) return;
+        const name = file.name.replace(/\.[^/.]+$/, "");
+
+        try {
+            const id = await saveTrackToDatabase(file, name);
 
             tracks.push({
-                name: file.name.replace(/\.[^/.]+$/, ""),
-                url: URL.createObjectURL(file)
+                id: id,
+                name: name,
+                file: file,
+                url: URL.createObjectURL(file),
+                favorite: false
             });
+        } catch (error) {
+            console.error("Ошибка сохранения музыки:", error);
+            alert("Не удалось сохранить файл: " + name);
+        }
+    }
+
+    renderPlaylist();
+
+    if (tracks.length && !audioPlayer.src) {
+        loadTrack(0);
+    }
+
+
+// Восстановление сохранённой музыки
+
+async function restoreSavedTracks() {
+    try {
+        const savedTracks = await getSavedTracks();
+
+        tracks = savedTracks.map(function(track) {
+            return {
+                id: track.id,
+                name: track.name,
+                file: track.file,
+                url: URL.createObjectURL(track.file),
+                favorite: track.favorite
+            };
         });
 
         renderPlaylist();
 
-        if (tracks.length && !audioPlayer.src) {
+        if (tracks.length > 0) {
             loadTrack(0);
         }
+    } catch (error) {
+        console.error("Ошибка загрузки библиотеки:", error);
+    }
+}
 
-        audioUpload.value = "";
-    });
+restoreSavedTracks();
+
+
+    audioUpload.value = "";
+});
+
 
     nextTrack.addEventListener("click", function() {
         if (!tracks.length) return;
@@ -713,7 +761,7 @@ function renderPlaylist() {
         loadTrack(nextIndex);
         playTrack();
     });
-}
+
 
 
 
