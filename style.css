@@ -1209,3 +1209,20 @@ body.dark-theme #playlist .playlist-item {
 body.dark-theme .volume-control {
     color: white;
 }
+
+
+
+/* ===== ИЗБРАННЫЕ ТРЕКИ ===== */
+
+.favorite-button {
+    color: #e75b75;
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.favorite-button:hover {
+    transform: scale(1.2);
+}
