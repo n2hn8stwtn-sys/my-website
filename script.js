@@ -459,30 +459,40 @@ if (
         renderPlaylist();
     }
 
-    function renderPlaylist() {
-        playlist.innerHTML = "";
+    
+function renderPlaylist() {
+    playlist.innerHTML = "";
 
-        tracks.forEach(function(track, index) {
-            const item = document.createElement("div");
-            item.className = "playlist-item";
+    tracks.forEach(function(track, index) {
+        const item = document.createElement("div");
+        item.className = "playlist-item";
 
-            const name = document.createElement("span");
-            name.textContent = "🎵 " + track.name;
+        const name = document.createElement("span");
+        name.textContent = "🎵 " + track.name;
 
-            const button = document.createElement("button");
-            button.type = "button";
-            button.textContent = "▶";
-            button.setAttribute("aria-label", "Воспроизвести " + track.name);
+        const favoriteButton = document.createElement("button");
+        favoriteButton.textContent = track.favorite ? "❤️" : "♡";
+        favoriteButton.className = "favorite-button";
 
-            button.addEventListener("click", function() {
-                loadTrack(index);
-                playTrack();
-            });
-
-            item.append(name, button);
-            playlist.appendChild(item);
+        favoriteButton.addEventListener("click", function() {
+            track.favorite = !track.favorite;
+            renderPlaylist();
         });
-    }
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "▶";
+
+        button.addEventListener("click", function() {
+            loadTrack(index);
+            playTrack();
+        });
+
+        item.append(name, favoriteButton, button);
+        playlist.appendChild(item);
+    });
+}
+
 
     function playTrack() {
     if (!tracks.length) {
