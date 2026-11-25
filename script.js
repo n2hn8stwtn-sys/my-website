@@ -682,38 +682,41 @@ audioUpload.addEventListener("change", async function() {
         loadTrack(0);
     }
 
+    audioUpload.value = "";
+});
+
 
 // Восстановление сохранённой музыки
 
-async function restoreSavedTracks() {
-    try {
-        const savedTracks = await getSavedTracks();
+    async function restoreSavedTracks() {
+        try {
+            const savedTracks = await getSavedTracks();
 
-        tracks = savedTracks.map(function(track) {
-            return {
-                id: track.id,
-                name: track.name,
-                file: track.file,
-                url: URL.createObjectURL(track.file),
-                favorite: track.favorite
-            };
-        });
+            tracks = savedTracks.map(function(track) {
+                return {
+                    id: track.id,
+                    name: track.name,
+                    file: track.file,
+                    url: URL.createObjectURL(track.file),
+                    favorite: track.favorite
+                };
+            });
 
-        renderPlaylist();
+            renderPlaylist();
 
-        if (tracks.length > 0) {
-            loadTrack(0);
+            if (tracks.length > 0) {
+                loadTrack(0);
+            }
+            console.log("Музыкальная библиотека восстановлена!");
+        } catch (error) {
+            console.error("Ошибка загрузки библиотеки:", error);
         }
-    } catch (error) {
-        console.error("Ошибка загрузки библиотеки:", error);
     }
-}
 
-restoreSavedTracks();
+    restoreSavedTracks();
 
 
-    audioUpload.value = "";
-});
+ 
 
 
     nextTrack.addEventListener("click", function() {
