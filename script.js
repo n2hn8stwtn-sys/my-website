@@ -567,80 +567,135 @@ if (
 
     // ===== ОТОБРАЖЕНИЕ ПЛЕЙЛИСТА =====
 
-    function renderPlaylist() {
-        playlist.innerHTML = "";
+    async function deleteTrackFromDatabase(id) {
+    const database = await openMusicDatabase();
 
-        if (favoritesList) {
-            favoritesList.innerHTML = "";
-        }
+    return new Promise(function(resolve, reject) {
+        const transaction = database.transaction("tracks", "readwrite");
+        const request = transaction.objectStore("tracks").delete(id);
 
-        tracks.forEach(function(track, index) {
-            const item = document.createElement("div");
-            item.className = "playlist-item";
+        request.onsuccess = function() {
+            resolve();
+        };
 
-            const name = document.createElement("span");
-            name.textContent = "🎵 " + track.name;
+        request.onerror = function() {
+            reject(request.error);
+        };
+    });
+}
 
-            const favoriteButton = document.createElement("button");
-            favoriteButton.textContent = track.favorite ? "❤️" : "♡";
-            favoriteButton.className = "favorite-button";
+async function renderPlaylist() {
+    playlist.innerHTML = "";
 
-            favoriteButton.addEventListener("click", async function() {
+    if (favoritesList) {
+        favoritesList.innerHTML = "";
+    }
+
+    tracks.forEach(function(track, index) {
+        const item = document.createElement("div");
+        item.className = "playlist-item";
+
+        const name = document.createElement("span");
+        name.textContent = "🎵 " + track.name;
+
+        const favoriteButton = document.createElement("button");
+        favoriteButton.textContent = track.favorite ? "❤️" : "♡";
+        favoriteButton.className = "favorite-button";
+
+        favoriteButton.addEventListener("click", async function() {
+            track.favorite = !track.favorite;
+
+            try {
+                await updateFavoriteInDatabase(track);
+                renderPlaylist();
+            } catch (error) {
                 track.favorite = !track.favorite;
+                console.error("Ошибка избранного:", error);
+                alert("Не удалось сохранить избранное.");
+            }
+        });
 
-                try {
-                    await updateFavoriteInDatabase(track);
-                    renderPlaylist();
-                } catch (error) {
-                    track.favorite = !track.favorite;
-                    console.error("Ошибка избранного:", error);
-                    alert("Не удалось сохранить избранное.");
+        const playButton = document.createElement("button");
+        playButton.type = "button";
+        playButton.textContent = "▶";
+
+        playButton.addEventListener("click", function() {
+            loadTrack(index);
+            playTrack();
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.textContent = "🗑️";
+
+        deleteButton.addEventListener("click", async function() {
+            const confirmed = confirm("Удалить этот трек?");
+
+            if (!confirmed) return;
+
+            try {
+                await deleteTrackFromDatabase(track.id);
+
+                URL.revokeObjectURL(track.url);
+                tracks.splice(index, 1);
+
+                if (tracks.length === 0) {
+                    audioPlayer.pause();
+                    audioPlayer.removeAttribute("src");
+                    playerTitle.textContent = "Выбери свою музыку";
+                    playerArtist.textContent = "Твоя музыкальная библиотека";
+                    playPause.textContent = "▶";
+                    currentTrackIndex = 0;
+                } else {
+                    if (index === currentTrackIndex) {
+                        currentTrackIndex = Math.min(index, tracks.length - 1);
+                        loadTrack(currentTrackIndex);
+                        audioPlayer.pause();
+                        playPause.textContent = "▶";
+                    } else if (index < currentTrackIndex) {
+                        currentTrackIndex--;
+                    }
                 }
-            });
 
-            const button = document.createElement("button");
-            button.type = "button";
-            button.textContent = "▶";
+                renderPlaylist();
+            } catch (error) {
+                console.error("Ошибка удаления:", error);
+                alert("Не удалось удалить трек.");
+            }
+        });
 
-            button.addEventListener("click", function() {
+        item.append(name, favoriteButton, playButton, deleteButton);
+        playlist.appendChild(item);
+
+        if (track.favorite && favoritesList) {
+            const favoriteItem = document.createElement("div");
+            favoriteItem.className = "playlist-item";
+
+            const favoriteName = document.createElement("span");
+            favoriteName.textContent = "❤️ " + track.name;
+
+            const favoritePlay = document.createElement("button");
+            favoritePlay.type = "button";
+            favoritePlay.textContent = "▶";
+
+            favoritePlay.addEventListener("click", function() {
                 loadTrack(index);
                 playTrack();
             });
 
-            item.append(name, favoriteButton, button);
-            playlist.appendChild(item);
-
-            // ===== ДОБАВЛЕНИЕ В ИЗБРАННОЕ =====
-
-            if (track.favorite && favoritesList) {
-                const favoriteItem = document.createElement("div");
-                favoriteItem.className = "playlist-item";
-
-                const favoriteName = document.createElement("span");
-                favoriteName.textContent = "❤️ " + track.name;
-
-                const favoritePlay = document.createElement("button");
-                favoritePlay.textContent = "▶";
-                favoritePlay.type = "button";
-
-                favoritePlay.addEventListener("click", function() {
-                    loadTrack(index);
-                    playTrack();
-                });
-
-                favoriteItem.append(favoriteName, favoritePlay);
-                favoritesList.appendChild(favoriteItem);
-            }
-        });
-
-        if (favoritesList && !tracks.some(function(track) {
-            return track.favorite;
-        })) {
-            const message = document.createElement("p");
-            message.textContent = "Здесь пока нет любимых треков";
-            favoritesList.appendChild(message);
+            favoriteItem.append(favoriteName, favoritePlay);
+            favoritesList.appendChild(favoriteItem);
         }
+    });
+
+    if (favoritesList && !tracks.some(function(track) {
+        return track.favorite;
+    })) {
+        const message = document.createElement("p");
+        message.textContent = "Здесь пока нет любимых треков";
+        favoritesList.appendChild(message);
     }
+}
 
     // ===== ВОСПРОИЗВЕДЕНИЕ =====
 
